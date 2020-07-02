@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/">
+        <file>../res/media-floppy-2.png</file>
+        <file>../res/folder-3.png</file>
+    </qresource>
+</RCC>

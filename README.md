@@ -1,4 +1,5 @@
 ## Vera Graphics Converter (VGC)
+![Vera Graphics Converter](sample.png)
 
 This software converts indexed and RGBA images in the formats PNG, JPG or GIF into binary data suitable for the VERA chip in the upcoming 8-Bit Computer [Commander X16](https://www.commanderx16.com).
 
