@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=VeraGraphicsConverter
+Exec=VeraGraphicsConverter %F
+Icon=default
+Terminal=false
+Categories=Development;
+
