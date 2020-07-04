@@ -36,8 +36,8 @@ void ImageWidget::paintEvent(QPaintEvent *) {
       qp->end();
       delete qp;
     } else {
-      int w, h, offX, offY;
-      calculateDimensions(w, h, offX, offY);
+      // int w, h, offX, offY;
+      // calculateDimensions(w, h, offX, offY);
       QPainter *qp = new QPainter();
       qp->begin(this);
       project->getTiles()->render(*qp, width(), height(), zoomFactor,

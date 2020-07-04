@@ -307,8 +307,9 @@ QRect Tiles::getTilePosition(size_t i, size_t, size_t, float zoomFactor,
   // int curNTilesX = width / tileW;
   int curNTilesX = nTilesX;
   if (curNTilesX == 0) curNTilesX = 1;
-  int y = i / curNTilesX;
-  int x = i % curNTilesX;
+  int nx = sqrt(tiles.size());
+  int y = i / nx;
+  int x = i % nx;
   return QRect{x * tileW + tilePadding - offsetX,
                y * tileH + tilePadding - offsetY, tileW - 2 * tilePadding,
                tileH - 2 * tilePadding};
