@@ -170,7 +170,7 @@ class MainWindow : public QMainWindow {
   PaletteWidget *paletteWidget;
   ImageWidget *imageWidget;
   // QProgressBar *progressBar;
-
+  bool displayingIndex = false;
   bool savePRGAddress = true;
   unsigned int prgAddress = 0;
   QString messageBuffer = "";

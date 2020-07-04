@@ -11,7 +11,7 @@ MainWindow::MainWindow(QWidget *parent)
 
   this->imageWidget = new ImageWidget(project, this);
   // this->progressBar = new QProgressBar(this->ui->statusBar);
-  this->ui->paletteDockContents->layout()->addWidget(paletteWidget);
+  this->ui->paletteScrollArea->setWidget(paletteWidget);
   this->ui->centralwidget->layout()->addWidget(imageWidget);
   // this->ui->statusBar->addPermanentWidget(progressBar);
   connect(paletteWidget, SIGNAL(PaletteChanged()), this,
@@ -28,6 +28,8 @@ MainWindow::MainWindow(QWidget *parent)
           SLOT(TilemapReady()));
   connect(paletteWidget, SIGNAL(HightlightInPicture(int)), imageWidget,
           SLOT(NewHightlightIndex(int)));
+  connect(paletteWidget, SIGNAL(HightlightInPicture(int)), this,
+          SLOT(indicesSelected(int)));
 
   this->ui->actionShowConverted->setChecked(true);
   int splitV = 2;
@@ -126,7 +128,7 @@ void MainWindow::TilemapReady() {
   float kBytes = nBytes / 1024;
   messageBuffer = tr("Binary size: ") + QString::number(nBytes) +
                   tr(" bytes - ") + QString::number(kBytes) + tr(" kB");
-  setStatus(messageBuffer);
+  if (!displayingIndex) setStatus(messageBuffer);
 }
 
 void MainWindow::paletteChanged() {
@@ -412,8 +414,10 @@ void MainWindow::updateUI() {
 
 void MainWindow::indicesSelected(int i) {
   if (i != -1) {
+    displayingIndex = true;
     setStatus(tr("Color Index Selected: ") + QString::number(i));
   } else {
+    displayingIndex = false;
     setStatus(messageBuffer);
   }
 }

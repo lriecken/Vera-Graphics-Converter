@@ -5,7 +5,12 @@ PaletteWidget::PaletteWidget(Palette *palette, QWidget *parent)
   this->palette = palette;
 }
 
-void PaletteWidget::paintEvent(QPaintEvent *) { this->drawPallete(); }
+void PaletteWidget::paintEvent(QPaintEvent *) {
+  size();
+  std::cout << width() << " " << height() << std::endl;
+  int newHeight = this->drawPallete();
+  setMinimumHeight(newHeight);
+}
 
 void PaletteWidget::mouseDoubleClickEvent(QMouseEvent *event) {
   int x = event->x();
@@ -45,7 +50,8 @@ void PaletteWidget::mouseReleaseEvent(QMouseEvent *) {
   emit HightlightInPicture(-1);
 }
 
-void PaletteWidget::drawPallete() {
+int PaletteWidget::drawPallete() {
+  int calculatedHeight = 0;
   try {
     QPen blackPen{QColor::fromRgb(0, 0, 0)};
 
@@ -60,6 +66,7 @@ void PaletteWidget::drawPallete() {
         auto cell = getCellRect(i);
         qp->fillRect(cell, static_cast<QRgb>(palette->getColor(i).data));
         qp->drawRect(cell);
+        calculatedHeight = cell.y() + cell.height();
       }
       if (highlighted >= 0) {
         auto cell = getCellRect(highlighted);
@@ -70,6 +77,7 @@ void PaletteWidget::drawPallete() {
       }
       qp->end();
       delete qp;
+      return calculatedHeight;
     }
   } catch (const std::out_of_range &e) {
     std::cout << e.what() << std::endl;
