@@ -122,7 +122,7 @@ class MainWindow : public QMainWindow {
 
   void on_actionReload_Vera_Default_triggered();
 
-  void on_transparentSpin_valueChanged(int arg1);
+  void on_transparentSpin_valueChanged(int state);
 
   void on_actionExport_Bitmap_Tilemap_triggered();
 
@@ -132,11 +132,11 @@ class MainWindow : public QMainWindow {
 
   void on_actionInfo_triggered();
 
-  void on_savePRGCheck_stateChanged(int arg1);
+  void on_savePRGCheck_stateChanged(int state);
 
-  void on_prgHeaderEdit_valueChanged(int arg1);
+  void on_prgHeaderEdit_valueChanged(int state);
 
-  void on_NTilesSpin_valueChanged(int arg1);
+  void on_NTilesSpin_valueChanged(int state);
 
   void on_actionHelp_triggered();
 
@@ -171,10 +171,9 @@ class MainWindow : public QMainWindow {
   ImageWidget *imageWidget;
   // QProgressBar *progressBar;
   bool displayingIndex = false;
-  bool savePRGAddress = true;
-  unsigned int prgAddress = 0;
+
   QString messageBuffer = "";
-  size_t splitPos = 0;
+
   Info *info = nullptr;
   Help *help = nullptr;
  signals:

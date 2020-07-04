@@ -601,14 +601,14 @@ void MainWindow::on_actionReload_Vera_Default_triggered() {
   paletteWidget->repaint();
 }
 
-void MainWindow::on_transparentSpin_valueChanged(int arg1) {
-  project->getTiles()->setTransparentDefault(arg1);
+void MainWindow::on_transparentSpin_valueChanged(int state) {
+  project->getTiles()->setTransparentDefault(state);
 }
 
 std::vector<unsigned char> MainWindow::exportPRGAdress() {
   std::vector<unsigned char> data;
-  unsigned char high = (prgAddress >> 8) & 0xFF;
-  unsigned char low = (prgAddress)&0xFF;
+  unsigned char high = (project->getPRGAddress() >> 8) & 0xFF;
+  unsigned char low = (project->getPRGAddress()) & 0xFF;
   data.push_back(low);
   data.push_back(high);
   return data;
@@ -651,13 +651,13 @@ void MainWindow::on_actionExport_Bitmap_Tilemap_triggered() {
 
     auto data = project->getTiles()->exportVera();
     std::vector<unsigned char> prgadr;
-    if (this->savePRGAddress) {
+    if (project->isSAvePRGAddress()) {
       prgadr = exportPRGAdress();
     }
     size_t idx = 0;
     int counter = 1;
     std::ofstream ofs;
-    if (data.size() > splitPos) {
+    if (data.size() > project->getSplitPosition()) {
       ofs = std::ofstream(
           QString(filename + QString::number(counter++)).toStdString(),
           std::ofstream::out);
@@ -666,7 +666,7 @@ void MainWindow::on_actionExport_Bitmap_Tilemap_triggered() {
     }
 
     if (ofs.is_open()) {
-      if (savePRGAddress) {
+      if (project->isSAvePRGAddress()) {
         ofs.put(prgadr[0]);
         ofs.put(prgadr[1]);
       }
@@ -675,12 +675,12 @@ void MainWindow::on_actionExport_Bitmap_Tilemap_triggered() {
         if (idx == data.size()) {
           ofs.close();
           return;
-        } else if (idx != 0 && idx % splitPos == 0) {
+        } else if (idx != 0 && idx % project->getSplitPosition() == 0) {
           ofs.close();
           ofs = std::ofstream(
               QString(filename + QString::number(counter++)).toStdString(),
               std::ofstream::out);
-          if (savePRGAddress) {
+          if (project->isSAvePRGAddress()) {
             ofs.put(prgadr[0]);
             ofs.put(prgadr[1]);
           }
@@ -701,7 +701,7 @@ void MainWindow::on_actionExport_Palette_triggered() {
     settings.setValue("paths/lastlocation", dir.path());
 
     auto data = project->getPalette()->exportVera(0, 256);
-    if (this->savePRGAddress) {
+    if (project->isSAvePRGAddress()) {
       auto prgadr = exportPRGAdress();
       data.insert(data.begin(), prgadr.begin(), prgadr.end());
     }
@@ -730,7 +730,7 @@ void MainWindow::on_actionExport_Palette_Section_as_Binary_triggered() {
 
       auto data = project->getPalette()->exportVera(
           exportPaletteSection.getFrom(), exportPaletteSection.getColors());
-      if (this->savePRGAddress) {
+      if (project->isSAvePRGAddress()) {
         auto prgadr = exportPRGAdress();
         data.insert(data.begin(), prgadr.begin(), prgadr.end());
       }
@@ -746,7 +746,7 @@ void MainWindow::on_actionExport_Palette_Section_as_Binary_triggered() {
 }
 
 void MainWindow::on_splitCombo_currentIndexChanged(int index) {
-  splitPos = (index + 1) * 2048;
+  project->setSplitPosition((index + 1) * 2048);
 }
 
 void MainWindow::on_actionInfo_triggered() {
@@ -756,16 +756,16 @@ void MainWindow::on_actionInfo_triggered() {
   info->exec();
 }
 
-void MainWindow::on_savePRGCheck_stateChanged(int arg1) {
-  this->savePRGAddress = arg1;
+void MainWindow::on_savePRGCheck_stateChanged(int state) {
+  project->setSavePRGAddress(state);
 }
 
-void MainWindow::on_prgHeaderEdit_valueChanged(int arg1) {
-  this->prgAddress = arg1;
+void MainWindow::on_prgHeaderEdit_valueChanged(int state) {
+  project->setPRGAddress(state);
 }
 
-void MainWindow::on_NTilesSpin_valueChanged(int arg1) {
-  project->getTiles()->setMaxTiles(arg1);
+void MainWindow::on_NTilesSpin_valueChanged(int state) {
+  project->getTiles()->setMaxTiles(state);
 }
 
 void MainWindow::on_actionHelp_triggered() {
@@ -785,8 +785,8 @@ bool MainWindow::doClose() {
     return true;
   } else {
     QMessageBox msgBox;
-    msgBox.setText("The project has been modified.");
-    msgBox.setInformativeText("Do you want to save your changes?");
+    msgBox.setText(tr("The project has been modified."));
+    msgBox.setInformativeText(tr("Do you want to save your changes?"));
     msgBox.setStandardButtons(QMessageBox::Save | QMessageBox::Discard |
                               QMessageBox::Cancel);
     msgBox.setDefaultButton(QMessageBox::Save);
@@ -819,8 +819,8 @@ void MainWindow::on_actionNew_triggered() {
     project->newProject();
   } else {
     QMessageBox msgBox;
-    msgBox.setText("The project has been modified.");
-    msgBox.setInformativeText("Do you want to save your changes?");
+    msgBox.setText(tr("The project has been modified."));
+    msgBox.setInformativeText(tr("Do you want to save your changes?"));
     msgBox.setStandardButtons(QMessageBox::Save | QMessageBox::Discard |
                               QMessageBox::Cancel);
     msgBox.setDefaultButton(QMessageBox::Save);

@@ -73,6 +73,12 @@ size_t Tile::getSize() {
   return 0;
 }
 
+void Tile::setPaletteOffset(size_t n) {
+  this->paletteOffset = n;
+  this->worker->paletteOffset = n;
+  init();
+}
+
 std::vector<unsigned char> Tile::exportVera() {
   std::vector<unsigned char> data;
   size_t i = 0;
@@ -147,6 +153,29 @@ std::vector<unsigned char> Tile::exportVera() {
   }
 
   return data;
+}
+
+QJsonObject Tile::serialize() {
+  QJsonObject root;
+  root["width"] = (int)width;
+  root["height"] = (int)height;
+  root["palette_offset"] = (int)paletteOffset;
+  root["nr_of_colors"] = (int)nColors;
+  /*
+  QJsonArray jIndices;
+  for (size_t i = 0; i < indices.size(); ++i) {
+    jIndices.append((int)indices.at(i));
+  }
+  root["indices"] = jIndices;
+  */
+  return root;
+}
+
+void Tile::deserialize(QJsonObject &obj) {
+  this->width = obj["width"].toInt();
+  this->height = obj["height"].toInt();
+  this->setPaletteOffset(obj["palette_offset"].toInt());
+  this->nColors = obj["nr_of_colors"].toInt();
 }
 
 void Tile::newProgres(float p) {

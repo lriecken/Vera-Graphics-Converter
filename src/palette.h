@@ -61,31 +61,8 @@ class Palette {
   void initializeVeraDefaultPalette();
 
   std::vector<unsigned char> exportVera(size_t from, size_t n);
-  QJsonObject serialize() {
-    QJsonObject root;
-    QJsonArray jEntries;
-    for (size_t i = 0; i < entriesColor.size(); ++i) {
-      QJsonArray jEntry;
-      jEntry.append(entriesColor.at(i).comp.r);
-      jEntry.append(entriesColor.at(i).comp.g);
-      jEntry.append(entriesColor.at(i).comp.b);
-      jEntries.append(jEntry);
-    }
-    root["colors"] = jEntries;
-    return root;
-  }
-  void deserialize(QJsonObject &obj) {
-    QJsonArray entries = obj["colors"].toArray();
-    for (int i = 0; i < entries.size(); ++i) {
-      QJsonArray e = entries.at(i).toArray();
-      if (e.size() == 3) {
-        unsigned int r = e.at(0).toInt();
-        unsigned int g = e.at(1).toInt();
-        unsigned int b = e.at(2).toInt();
-        setColor(i, r & 0xFF, g & 0xFF, b & 0xFF);
-      }
-    }
-  }
+  QJsonObject serialize();
+  void deserialize(QJsonObject &obj);
 
  private:
   double getRGBDiff(ColorComp &a, ColorComp &b);

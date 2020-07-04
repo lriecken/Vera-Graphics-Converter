@@ -219,6 +219,33 @@ std::vector<unsigned char> Palette::exportVera(size_t from, size_t n) {
   return data;
 }
 
+QJsonObject Palette::serialize() {
+  QJsonObject root;
+  QJsonArray jEntries;
+  for (size_t i = 0; i < entriesColor.size(); ++i) {
+    QJsonArray jEntry;
+    jEntry.append(entriesColor.at(i).comp.r);
+    jEntry.append(entriesColor.at(i).comp.g);
+    jEntry.append(entriesColor.at(i).comp.b);
+    jEntries.append(jEntry);
+  }
+  root["colors"] = jEntries;
+  return root;
+}
+
+void Palette::deserialize(QJsonObject &obj) {
+  QJsonArray entries = obj["colors"].toArray();
+  for (int i = 0; i < entries.size(); ++i) {
+    QJsonArray e = entries.at(i).toArray();
+    if (e.size() == 3) {
+      unsigned int r = e.at(0).toInt();
+      unsigned int g = e.at(1).toInt();
+      unsigned int b = e.at(2).toInt();
+      setColor(i, r & 0xFF, g & 0xFF, b & 0xFF);
+    }
+  }
+}
+
 double Palette::getRGBDiff(ColorComp &a, ColorComp &b) {
   float rDiff = (float)a.r - (float)b.r;
   float gDiff = (float)a.g - (float)b.g;

@@ -13,75 +13,35 @@
 class Project : public QObject {
   Q_OBJECT
  public:
-  Project(QObject *parent) : QObject(parent) {
-    palette = new Palette(256);
-    tiles = new Tiles(this, palette);
-  }
-  Tiles *getTiles() { return tiles; }
-  Palette *getPalette() { return palette; }
+  Project(QObject *parent);
+  Tiles *getTiles();
+  Palette *getPalette();
 
-  void newProject() {
-    this->projectFileName = "";
-    this->palette->initializeVeraDefaultPalette();
-    this->tiles->reset();
-  }
-  bool saveProject(const std::string filename) {
-    this->projectFileName = filename;
-    auto json = serialize();
-    QJsonDocument doc(json);
-    QFile ofs(QString::fromStdString(filename));
-    if (!ofs.open(QIODevice::WriteOnly)) {
-      return false;
-    }
+  void newProject();
+  bool saveProject(const std::string filename);
+  bool loadProject(const std::string filename);
+  std::string getProjectFilename();
+  void mark();
+  bool isClean();
+  ~Project();
 
-    ofs.write(doc.toJson());
-
-    ofs.close();
-    clean = true;
-    return true;
-  }
-  bool loadProject(const std::string filename) {
-    QFile ifs(QString::fromStdString(filename));
-    if (!ifs.open(QIODevice::ReadOnly)) {
-      return false;
-    }
-    auto data = ifs.readAll();
-    ifs.close();
-    auto doc = QJsonDocument::fromJson(data);
-    if (!doc.isObject()) {
-      return false;
-    }
-    auto obj = doc.object();
-    this->deserialize(obj);
-    mark();
-    return true;
-  }
-  std::string getProjectFilename() { return projectFileName; }
-  void mark() { clean = false; }
-  bool isClean() { return clean; }
-  ~Project() {
-    delete tiles;
-    delete palette;
-  }
-
-  QJsonObject serialize() {
-    QJsonObject root;
-    root["palette"] = palette->serialize();
-    root["tiles"] = tiles->serialize();
-    return root;
-  }
-  void deserialize(QJsonObject &obj) {
-    auto jPalette = obj["palette"].toObject();
-    auto jTiles = obj["tiles"].toObject();
-    this->tiles->deserialize(jTiles);
-    this->palette->deserialize(jPalette);
-  }
+  QJsonObject serialize();
+  void deserialize(QJsonObject &obj);
+  void setSavePRGAddress(bool value);
+  bool isSAvePRGAddress();
+  void setPRGAddress(unsigned int value);
+  unsigned int getPRGAddress();
+  void setSplitPosition(size_t value);
+  size_t getSplitPosition();
 
  private:
   Tiles *tiles;
   Palette *palette;
   bool clean = true;
   std::string projectFileName = "";
+  bool savePRGAddress = true;
+  unsigned int prgAddress = 0;
+  size_t splitPos = 0;
 };
 
 #endif  // PROJECT_H
