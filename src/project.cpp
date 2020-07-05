@@ -81,7 +81,7 @@ void Project::deserialize(QJsonObject &obj) {
 
 void Project::setSavePRGAddress(bool value) { this->savePRGAddress = value; }
 
-bool Project::isSAvePRGAddress() { return savePRGAddress; }
+bool Project::isSavePRGAddress() { return savePRGAddress; }
 
 void Project::setPRGAddress(unsigned int value) { this->prgAddress = value; }
 

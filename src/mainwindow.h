@@ -19,6 +19,7 @@
 #include "palette.h"
 #include "palettewidget.h"
 #include "project.h"
+#include "settings.h"
 #include "tiles.h"
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -128,13 +129,7 @@ class MainWindow : public QMainWindow {
 
   void on_actionExport_Palette_triggered();
 
-  void on_splitCombo_currentIndexChanged(int index);
-
   void on_actionInfo_triggered();
-
-  void on_savePRGCheck_stateChanged(int state);
-
-  void on_prgHeaderEdit_valueChanged(int state);
 
   void on_NTilesSpin_valueChanged(int state);
 
@@ -153,6 +148,8 @@ class MainWindow : public QMainWindow {
   void on_actionOpen_triggered();
 
   void on_actionExport_Palette_Section_as_Binary_triggered();
+
+  void on_actionSettings_triggered();
 
  public slots:
   void ReceiveProgress(float);

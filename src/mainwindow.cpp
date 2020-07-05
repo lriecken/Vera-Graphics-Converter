@@ -32,12 +32,6 @@ MainWindow::MainWindow(QWidget *parent)
           SLOT(indicesSelected(int)));
 
   this->ui->actionShowConverted->setChecked(true);
-  int splitV = 2;
-  while (splitV < 128) {
-    ui->splitCombo->addItem(QString::number(splitV) + "kB");
-    splitV += 2;
-  }
-  ui->splitCombo->setCurrentIndex(ui->splitCombo->count() - 1);
 
   updateUI();
   loadSettings();
@@ -617,10 +611,7 @@ std::vector<unsigned char> MainWindow::exportPRGAdress() {
 
 void MainWindow::loadSettings() {
   QSettings settings;
-  this->ui->savePRGCheck->setChecked(
-      settings.value("configuration/saveprgheader", true).toBool());
-  this->ui->prgHeaderEdit->setValue(
-      settings.value("configuration/prgheader", 0).toInt());
+
   this->ui->configDock->setFloating(
       settings.value("layout/configdock/floating", false).toBool());
   this->ui->paletteDock->setFloating(
@@ -629,9 +620,7 @@ void MainWindow::loadSettings() {
 
 void MainWindow::saveSettings() {
   QSettings settings;
-  settings.setValue("configuration/saveprgheader",
-                    ui->savePRGCheck->isChecked());
-  settings.setValue("configuration/prgheader", ui->prgHeaderEdit->text());
+
   settings.setValue("layout/configdock/floating", ui->configDock->isFloating());
   settings.setValue("layout/palettedock/floating",
                     ui->paletteDock->isFloating());
@@ -652,7 +641,7 @@ void MainWindow::on_actionExport_Bitmap_Tilemap_triggered() {
 
     auto data = project->getTiles()->exportVera();
     std::vector<unsigned char> prgadr;
-    if (project->isSAvePRGAddress()) {
+    if (project->isSavePRGAddress()) {
       prgadr = exportPRGAdress();
     }
     size_t idx = 0;
@@ -667,7 +656,7 @@ void MainWindow::on_actionExport_Bitmap_Tilemap_triggered() {
     }
 
     if (ofs.is_open()) {
-      if (project->isSAvePRGAddress()) {
+      if (project->isSavePRGAddress()) {
         ofs.put(prgadr[0]);
         ofs.put(prgadr[1]);
       }
@@ -681,7 +670,7 @@ void MainWindow::on_actionExport_Bitmap_Tilemap_triggered() {
           ofs = std::ofstream(
               QString(filename + QString::number(counter++)).toStdString(),
               std::ofstream::out);
-          if (project->isSAvePRGAddress()) {
+          if (project->isSavePRGAddress()) {
             ofs.put(prgadr[0]);
             ofs.put(prgadr[1]);
           }
@@ -702,7 +691,7 @@ void MainWindow::on_actionExport_Palette_triggered() {
     settings.setValue("paths/lastlocation", dir.path());
 
     auto data = project->getPalette()->exportVera(0, 256);
-    if (project->isSAvePRGAddress()) {
+    if (project->isSavePRGAddress()) {
       auto prgadr = exportPRGAdress();
       data.insert(data.begin(), prgadr.begin(), prgadr.end());
     }
@@ -731,7 +720,7 @@ void MainWindow::on_actionExport_Palette_Section_as_Binary_triggered() {
 
       auto data = project->getPalette()->exportVera(
           exportPaletteSection.getFrom(), exportPaletteSection.getColors());
-      if (project->isSAvePRGAddress()) {
+      if (project->isSavePRGAddress()) {
         auto prgadr = exportPRGAdress();
         data.insert(data.begin(), prgadr.begin(), prgadr.end());
       }
@@ -746,23 +735,11 @@ void MainWindow::on_actionExport_Palette_Section_as_Binary_triggered() {
   }
 }
 
-void MainWindow::on_splitCombo_currentIndexChanged(int index) {
-  project->setSplitPosition((index + 1) * 2048);
-}
-
 void MainWindow::on_actionInfo_triggered() {
   if (info == nullptr) {
     info = new Info(this);
   }
   info->exec();
-}
-
-void MainWindow::on_savePRGCheck_stateChanged(int state) {
-  project->setSavePRGAddress(state);
-}
-
-void MainWindow::on_prgHeaderEdit_valueChanged(int state) {
-  project->setPRGAddress(state);
 }
 
 void MainWindow::on_NTilesSpin_valueChanged(int state) {
@@ -865,4 +842,9 @@ void MainWindow::on_actionOpen_triggered() {
       infoBox.exec();
     }
   }
+}
+
+void MainWindow::on_actionSettings_triggered() {
+  Settings settings(project);
+  settings.exec();
 }

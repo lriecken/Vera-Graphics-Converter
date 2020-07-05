@@ -28,7 +28,7 @@ class Project : public QObject {
   QJsonObject serialize();
   void deserialize(QJsonObject &obj);
   void setSavePRGAddress(bool value);
-  bool isSAvePRGAddress();
+  bool isSavePRGAddress();
   void setPRGAddress(unsigned int value);
   unsigned int getPRGAddress();
   void setSplitPosition(size_t value);
