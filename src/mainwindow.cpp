@@ -10,10 +10,8 @@ MainWindow::MainWindow(QWidget *parent)
   this->paletteWidget = new PaletteWidget(project->getPalette(), this);
 
   this->imageWidget = new ImageWidget(project, this);
-  // this->progressBar = new QProgressBar(this->ui->statusBar);
   this->ui->paletteScrollArea->setWidget(paletteWidget);
   this->ui->centralwidget->layout()->addWidget(imageWidget);
-  // this->ui->statusBar->addPermanentWidget(progressBar);
   connect(paletteWidget, SIGNAL(PaletteChanged()), this,
           SLOT(paletteChanged()));
   connect(project->getTiles(), SIGNAL(needUiUpdate()), this, SLOT(updateUI()));

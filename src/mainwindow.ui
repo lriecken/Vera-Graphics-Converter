@@ -68,7 +68,7 @@
   <widget class="QDockWidget" name="paletteDock">
    <property name="minimumSize">
     <size>
-     <width>200</width>
+     <width>205</width>
      <height>200</height>
     </size>
    </property>
@@ -93,7 +93,7 @@
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>174</width>
+          <width>179</width>
           <height>274</height>
          </rect>
         </property>
