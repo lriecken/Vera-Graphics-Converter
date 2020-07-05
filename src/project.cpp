@@ -72,7 +72,7 @@ QJsonObject Project::serialize() {
 void Project::deserialize(QJsonObject &obj) {
   auto jPalette = obj["palette"].toObject();
   auto jTiles = obj["tiles"].toObject();
-  splitPos = obj["file_split_position"].toInt();
+  if (splitPos == 0) splitPos = 129024;
   prgAddress = obj["prg_address"].toInt();
   savePRGAddress = obj["save_prg_address"].toBool();
   this->tiles->deserialize(jTiles);
