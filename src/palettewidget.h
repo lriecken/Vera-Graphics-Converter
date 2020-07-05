@@ -16,14 +16,13 @@ class PaletteWidget : public QWidget {
  public:
   explicit PaletteWidget(Palette *palette, QWidget *parent = nullptr);
   void paintEvent(QPaintEvent *) override;
-
   void mouseDoubleClickEvent(QMouseEvent *event) override;
   void mousePressEvent(QMouseEvent *event) override;
   void mouseMoveEvent(QMouseEvent *event) override;
   void mouseReleaseEvent(QMouseEvent *) override;
 
  private:
-  void drawPallete();
+  int drawPallete();
 
   QRect getCellRect(int i);
 

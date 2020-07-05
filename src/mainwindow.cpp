@@ -10,10 +10,8 @@ MainWindow::MainWindow(QWidget *parent)
   this->paletteWidget = new PaletteWidget(project->getPalette(), this);
 
   this->imageWidget = new ImageWidget(project, this);
-  // this->progressBar = new QProgressBar(this->ui->statusBar);
-  this->ui->paletteDockContents->layout()->addWidget(paletteWidget);
+  this->ui->paletteScrollArea->setWidget(paletteWidget);
   this->ui->centralwidget->layout()->addWidget(imageWidget);
-  // this->ui->statusBar->addPermanentWidget(progressBar);
   connect(paletteWidget, SIGNAL(PaletteChanged()), this,
           SLOT(paletteChanged()));
   connect(project->getTiles(), SIGNAL(needUiUpdate()), this, SLOT(updateUI()));
@@ -28,14 +26,10 @@ MainWindow::MainWindow(QWidget *parent)
           SLOT(TilemapReady()));
   connect(paletteWidget, SIGNAL(HightlightInPicture(int)), imageWidget,
           SLOT(NewHightlightIndex(int)));
+  connect(paletteWidget, SIGNAL(HightlightInPicture(int)), this,
+          SLOT(indicesSelected(int)));
 
   this->ui->actionShowConverted->setChecked(true);
-  int splitV = 2;
-  while (splitV < 128) {
-    ui->splitCombo->addItem(QString::number(splitV) + "kB");
-    splitV += 2;
-  }
-  ui->splitCombo->setCurrentIndex(ui->splitCombo->count() - 1);
 
   updateUI();
   loadSettings();
@@ -126,7 +120,7 @@ void MainWindow::TilemapReady() {
   float kBytes = nBytes / 1024;
   messageBuffer = tr("Binary size: ") + QString::number(nBytes) +
                   tr(" bytes - ") + QString::number(kBytes) + tr(" kB");
-  setStatus(messageBuffer);
+  if (!displayingIndex) setStatus(messageBuffer);
 }
 
 void MainWindow::paletteChanged() {
@@ -262,9 +256,10 @@ void MainWindow::updateUI() {
       this->ui->pMode1Check->setEnabled(true);
       this->ui->pMode2Check->setEnabled(true);
       this->ui->NTilesSpin->setEnabled(true);
-      if (this->ui->NTilesSpin->maximum() == 128) {
+      if (project->getTiles()->getNColors() == 2) {
         this->ui->NTilesSpin->setRange(1, 256);
-        this->ui->NTilesSpin->setValue(256);
+      } else {
+        this->ui->NTilesSpin->setRange(1, 1024);
       }
       break;
     case IMAGEMODE::TILED16:
@@ -277,9 +272,10 @@ void MainWindow::updateUI() {
       this->ui->pMode1Check->setEnabled(true);
       this->ui->pMode2Check->setEnabled(true);
       this->ui->NTilesSpin->setEnabled(true);
-      if (this->ui->NTilesSpin->maximum() == 128) {
+      if (project->getTiles()->getNColors() == 2) {
         this->ui->NTilesSpin->setRange(1, 256);
-        this->ui->NTilesSpin->setValue(256);
+      } else {
+        this->ui->NTilesSpin->setRange(1, 1024);
       }
       break;
     case IMAGEMODE::SPRITE:
@@ -292,10 +288,9 @@ void MainWindow::updateUI() {
       this->ui->pMode1Check->setEnabled(false);
       this->ui->pMode2Check->setEnabled(false);
       this->ui->NTilesSpin->setEnabled(true);
-      if (this->ui->NTilesSpin->maximum() == 256) {
-        this->ui->NTilesSpin->setRange(1, 128);
-        this->ui->NTilesSpin->setValue(128);
-      }
+
+      this->ui->NTilesSpin->setRange(1, 128);
+
       break;
   }
   switch (project->getTiles()->getSpriteWidth()) {
@@ -412,8 +407,10 @@ void MainWindow::updateUI() {
 
 void MainWindow::indicesSelected(int i) {
   if (i != -1) {
+    displayingIndex = true;
     setStatus(tr("Color Index Selected: ") + QString::number(i));
   } else {
+    displayingIndex = false;
     setStatus(messageBuffer);
   }
 }
@@ -597,14 +594,14 @@ void MainWindow::on_actionReload_Vera_Default_triggered() {
   paletteWidget->repaint();
 }
 
-void MainWindow::on_transparentSpin_valueChanged(int arg1) {
-  project->getTiles()->setTransparentDefault(arg1);
+void MainWindow::on_transparentSpin_valueChanged(int state) {
+  project->getTiles()->setTransparentDefault(state);
 }
 
 std::vector<unsigned char> MainWindow::exportPRGAdress() {
   std::vector<unsigned char> data;
-  unsigned char high = (prgAddress >> 8) & 0xFF;
-  unsigned char low = (prgAddress)&0xFF;
+  unsigned char high = (project->getPRGAddress() >> 8) & 0xFF;
+  unsigned char low = (project->getPRGAddress()) & 0xFF;
   data.push_back(low);
   data.push_back(high);
   return data;
@@ -612,10 +609,7 @@ std::vector<unsigned char> MainWindow::exportPRGAdress() {
 
 void MainWindow::loadSettings() {
   QSettings settings;
-  this->ui->savePRGCheck->setChecked(
-      settings.value("configuration/saveprgheader", true).toBool());
-  this->ui->prgHeaderEdit->setValue(
-      settings.value("configuration/prgheader", 0).toInt());
+
   this->ui->configDock->setFloating(
       settings.value("layout/configdock/floating", false).toBool());
   this->ui->paletteDock->setFloating(
@@ -624,9 +618,7 @@ void MainWindow::loadSettings() {
 
 void MainWindow::saveSettings() {
   QSettings settings;
-  settings.setValue("configuration/saveprgheader",
-                    ui->savePRGCheck->isChecked());
-  settings.setValue("configuration/prgheader", ui->prgHeaderEdit->text());
+
   settings.setValue("layout/configdock/floating", ui->configDock->isFloating());
   settings.setValue("layout/palettedock/floating",
                     ui->paletteDock->isFloating());
@@ -647,13 +639,13 @@ void MainWindow::on_actionExport_Bitmap_Tilemap_triggered() {
 
     auto data = project->getTiles()->exportVera();
     std::vector<unsigned char> prgadr;
-    if (this->savePRGAddress) {
+    if (project->isSavePRGAddress()) {
       prgadr = exportPRGAdress();
     }
     size_t idx = 0;
     int counter = 1;
     std::ofstream ofs;
-    if (data.size() > splitPos) {
+    if (data.size() > project->getSplitPosition()) {
       ofs = std::ofstream(
           QString(filename + QString::number(counter++)).toStdString(),
           std::ofstream::out);
@@ -662,7 +654,7 @@ void MainWindow::on_actionExport_Bitmap_Tilemap_triggered() {
     }
 
     if (ofs.is_open()) {
-      if (savePRGAddress) {
+      if (project->isSavePRGAddress()) {
         ofs.put(prgadr[0]);
         ofs.put(prgadr[1]);
       }
@@ -671,12 +663,12 @@ void MainWindow::on_actionExport_Bitmap_Tilemap_triggered() {
         if (idx == data.size()) {
           ofs.close();
           return;
-        } else if (idx != 0 && idx % splitPos == 0) {
+        } else if (idx != 0 && idx % project->getSplitPosition() == 0) {
           ofs.close();
           ofs = std::ofstream(
               QString(filename + QString::number(counter++)).toStdString(),
               std::ofstream::out);
-          if (savePRGAddress) {
+          if (project->isSavePRGAddress()) {
             ofs.put(prgadr[0]);
             ofs.put(prgadr[1]);
           }
@@ -697,7 +689,7 @@ void MainWindow::on_actionExport_Palette_triggered() {
     settings.setValue("paths/lastlocation", dir.path());
 
     auto data = project->getPalette()->exportVera(0, 256);
-    if (this->savePRGAddress) {
+    if (project->isSavePRGAddress()) {
       auto prgadr = exportPRGAdress();
       data.insert(data.begin(), prgadr.begin(), prgadr.end());
     }
@@ -726,7 +718,7 @@ void MainWindow::on_actionExport_Palette_Section_as_Binary_triggered() {
 
       auto data = project->getPalette()->exportVera(
           exportPaletteSection.getFrom(), exportPaletteSection.getColors());
-      if (this->savePRGAddress) {
+      if (project->isSavePRGAddress()) {
         auto prgadr = exportPRGAdress();
         data.insert(data.begin(), prgadr.begin(), prgadr.end());
       }
@@ -741,10 +733,6 @@ void MainWindow::on_actionExport_Palette_Section_as_Binary_triggered() {
   }
 }
 
-void MainWindow::on_splitCombo_currentIndexChanged(int index) {
-  splitPos = (index + 1) * 2048;
-}
-
 void MainWindow::on_actionInfo_triggered() {
   if (info == nullptr) {
     info = new Info(this);
@@ -752,16 +740,8 @@ void MainWindow::on_actionInfo_triggered() {
   info->exec();
 }
 
-void MainWindow::on_savePRGCheck_stateChanged(int arg1) {
-  this->savePRGAddress = arg1;
-}
-
-void MainWindow::on_prgHeaderEdit_valueChanged(int arg1) {
-  this->prgAddress = arg1;
-}
-
-void MainWindow::on_NTilesSpin_valueChanged(int arg1) {
-  project->getTiles()->setMaxTiles(arg1);
+void MainWindow::on_NTilesSpin_valueChanged(int state) {
+  project->getTiles()->setMaxTiles(state);
 }
 
 void MainWindow::on_actionHelp_triggered() {
@@ -781,8 +761,8 @@ bool MainWindow::doClose() {
     return true;
   } else {
     QMessageBox msgBox;
-    msgBox.setText("The project has been modified.");
-    msgBox.setInformativeText("Do you want to save your changes?");
+    msgBox.setText(tr("The project has been modified."));
+    msgBox.setInformativeText(tr("Do you want to save your changes?"));
     msgBox.setStandardButtons(QMessageBox::Save | QMessageBox::Discard |
                               QMessageBox::Cancel);
     msgBox.setDefaultButton(QMessageBox::Save);
@@ -815,8 +795,8 @@ void MainWindow::on_actionNew_triggered() {
     project->newProject();
   } else {
     QMessageBox msgBox;
-    msgBox.setText("The project has been modified.");
-    msgBox.setInformativeText("Do you want to save your changes?");
+    msgBox.setText(tr("The project has been modified."));
+    msgBox.setInformativeText(tr("Do you want to save your changes?"));
     msgBox.setStandardButtons(QMessageBox::Save | QMessageBox::Discard |
                               QMessageBox::Cancel);
     msgBox.setDefaultButton(QMessageBox::Save);
@@ -860,4 +840,9 @@ void MainWindow::on_actionOpen_triggered() {
       infoBox.exec();
     }
   }
+}
+
+void MainWindow::on_actionSettings_triggered() {
+  Settings settings(project);
+  settings.exec();
 }

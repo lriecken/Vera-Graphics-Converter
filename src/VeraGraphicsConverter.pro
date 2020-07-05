@@ -25,6 +25,7 @@ SOURCES += \
     palette.cpp \
     palettewidget.cpp \
     project.cpp \
+    settings.cpp \
     tile.cpp \
     tiles.cpp
 
@@ -37,6 +38,7 @@ HEADERS += \
     palette.h \
     palettewidget.h \
     project.h \
+    settings.h \
     tile.h \
     tiles.h
 
@@ -44,7 +46,8 @@ FORMS += \
     exportpalettesection.ui \
     help.ui \
     info.ui \
-    mainwindow.ui
+    mainwindow.ui \
+    settings.ui
 
 RESOURCES = resources.qrc
 

@@ -19,6 +19,7 @@
 #include "palette.h"
 #include "palettewidget.h"
 #include "project.h"
+#include "settings.h"
 #include "tiles.h"
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -122,21 +123,15 @@ class MainWindow : public QMainWindow {
 
   void on_actionReload_Vera_Default_triggered();
 
-  void on_transparentSpin_valueChanged(int arg1);
+  void on_transparentSpin_valueChanged(int state);
 
   void on_actionExport_Bitmap_Tilemap_triggered();
 
   void on_actionExport_Palette_triggered();
 
-  void on_splitCombo_currentIndexChanged(int index);
-
   void on_actionInfo_triggered();
 
-  void on_savePRGCheck_stateChanged(int arg1);
-
-  void on_prgHeaderEdit_valueChanged(int arg1);
-
-  void on_NTilesSpin_valueChanged(int arg1);
+  void on_NTilesSpin_valueChanged(int state);
 
   void on_actionHelp_triggered();
 
@@ -154,6 +149,8 @@ class MainWindow : public QMainWindow {
 
   void on_actionExport_Palette_Section_as_Binary_triggered();
 
+  void on_actionSettings_triggered();
+
  public slots:
   void ReceiveProgress(float);
   void TilemapReady();
@@ -170,11 +167,10 @@ class MainWindow : public QMainWindow {
   PaletteWidget *paletteWidget;
   ImageWidget *imageWidget;
   // QProgressBar *progressBar;
+  bool displayingIndex = false;
 
-  bool savePRGAddress = true;
-  unsigned int prgAddress = 0;
   QString messageBuffer = "";
-  size_t splitPos = 0;
+
   Info *info = nullptr;
   Help *help = nullptr;
  signals:

@@ -37,6 +37,8 @@
     <addaction name="actionOpenImage"/>
     <addaction name="actionExport_Bitmap_Tilemap"/>
     <addaction name="separator"/>
+    <addaction name="actionSettings"/>
+    <addaction name="separator"/>
     <addaction name="actionQuit"/>
    </widget>
    <widget class="QMenu" name="menuPalette">
@@ -66,7 +68,7 @@
   <widget class="QDockWidget" name="paletteDock">
    <property name="minimumSize">
     <size>
-     <width>200</width>
+     <width>205</width>
      <height>200</height>
     </size>
    </property>
@@ -80,7 +82,25 @@
     <number>2</number>
    </attribute>
    <widget class="QWidget" name="paletteDockContents">
-    <layout class="QGridLayout" name="gridLayout"/>
+    <layout class="QGridLayout" name="gridLayout">
+     <item row="0" column="0">
+      <widget class="QScrollArea" name="paletteScrollArea">
+       <property name="widgetResizable">
+        <bool>true</bool>
+       </property>
+       <widget class="QWidget" name="scrollAreaWidgetContents">
+        <property name="geometry">
+         <rect>
+          <x>0</x>
+          <y>0</y>
+          <width>179</width>
+          <height>274</height>
+         </rect>
+        </property>
+       </widget>
+      </widget>
+     </item>
+    </layout>
    </widget>
   </widget>
   <widget class="QDockWidget" name="configDock">
@@ -408,50 +428,13 @@
           <number>1</number>
          </property>
          <property name="maximum">
-          <number>256</number>
+          <number>1024</number>
          </property>
          <property name="singleStep">
           <number>1</number>
          </property>
          <property name="value">
-          <number>256</number>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QLabel" name="label_2">
-         <property name="text">
-          <string>Split:</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QComboBox" name="splitCombo">
-         <property name="toolTip">
-          <string>Split exported bitmap files at this filesize</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QCheckBox" name="savePRGCheck">
-         <property name="toolTip">
-          <string>Include 2 byte loading adress in exported files</string>
-         </property>
-         <property name="text">
-          <string>PRG File Header:</string>
-         </property>
-         <property name="checked">
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QSpinBox" name="prgHeaderEdit">
-         <property name="toolTip">
-          <string>Loading adress. If in doubt leave this to zero</string>
-         </property>
-         <property name="maximum">
-          <number>65535</number>
+          <number>1024</number>
          </property>
         </widget>
        </item>
@@ -657,6 +640,11 @@
   <action name="actionExport_Palette_Section_as_Binary">
    <property name="text">
     <string>Export Palette Section as Binary...</string>
+   </property>
+  </action>
+  <action name="actionSettings">
+   <property name="text">
+    <string>Settings...</string>
    </property>
   </action>
  </widget>

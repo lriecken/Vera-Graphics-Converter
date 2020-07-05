@@ -54,41 +54,18 @@ class Tile : public QObject {
   bool isReady();
   void clear();
   size_t getSize();
-  void setPaletteOffset(size_t n) {
-    this->paletteOffset = n;
-    this->worker->paletteOffset = n;
-    init();
-  }
+  void setPaletteOffset(size_t n);
   size_t getPaletteOffset() { return paletteOffset; }
   QImage &getImage(int hightlightIndex);
-
-  ~Tile();
 
   std::vector<unsigned char> exportVera();
 
   bool initComplete = false;
   float currentProgress = 0;
-  QJsonObject serialize() {
-    QJsonObject root;
-    root["width"] = (int)width;
-    root["height"] = (int)height;
-    root["palette_offset"] = (int)paletteOffset;
-    root["nr_of_colors"] = (int)nColors;
-    /*
-    QJsonArray jIndices;
-    for (size_t i = 0; i < indices.size(); ++i) {
-      jIndices.append((int)indices.at(i));
-    }
-    root["indices"] = jIndices;
-    */
-    return root;
-  }
-  void deserialize(QJsonObject &obj) {
-    this->width = obj["width"].toInt();
-    this->height = obj["height"].toInt();
-    this->setPaletteOffset(obj["palette_offset"].toInt());
-    this->nColors = obj["nr_of_colors"].toInt();
-  }
+  QJsonObject serialize();
+  void deserialize(QJsonObject &obj);
+
+  ~Tile();
  private slots:
   void newProgres(float p);
   void done();

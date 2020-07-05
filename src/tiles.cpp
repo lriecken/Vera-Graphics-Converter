@@ -45,7 +45,6 @@ bool Tiles::load(const std::string &filename) {
 }
 
 void Tiles::reset() {
-  std::cout << "Resetting" << std::endl;
   this->original = QImage();
   this->imageLoaded = false;
   this->nColors = 256;
@@ -187,19 +186,12 @@ void Tiles::setNColors(int n) {
 }
 
 void Tiles::setPaletteOffset(int n) {
-  std::cout << "Setting palette offset " << std::endl;
   if (getSelectedTile() != nullptr) {
     this->getSelectedTile()->setPaletteOffset(n);
   }
 
   this->paletteOffset = n;
   emit needUiUpdate();
-  if (convMode != INDEXED) {
-    std::cout << "Conversion mode is not idexed" << std::endl;
-
-  } else {
-    std::cout << "Conversion mode is idexed" << std::endl;
-  }
 }
 
 int Tiles::getPaletteOffset() {
@@ -271,6 +263,19 @@ void Tiles::setHightlightIndex(int idx) {
   this->clearBuffer();
 }
 
+void Tiles::selectTile(size_t idx) {
+  this->selectedTile = idx;
+  emit TilemapReady();
+  emit needUiUpdate();
+}
+
+Tile *Tiles::getSelectedTile() {
+  if (selectedTile < tiles.size()) {
+    return tiles[selectedTile];
+  }
+  return nullptr;
+}
+
 Tile *Tiles::makeTile(size_t width, size_t height, size_t paletteOffset,
                       size_t nColors, int offX, int offY) {
   Tile *t = new Tile(this, width, height, paletteOffset, nColors, offX, offY,
@@ -307,11 +312,87 @@ QRect Tiles::getTilePosition(size_t i, size_t, size_t, float zoomFactor,
   // int curNTilesX = width / tileW;
   int curNTilesX = nTilesX;
   if (curNTilesX == 0) curNTilesX = 1;
-  int y = i / curNTilesX;
-  int x = i % curNTilesX;
+  int nx = sqrt(tiles.size());
+  int y = i / nx;
+  int x = i % nx;
   return QRect{x * tileW + tilePadding - offsetX,
                y * tileH + tilePadding - offsetY, tileW - 2 * tilePadding,
                tileH - 2 * tilePadding};
+}
+
+QJsonObject Tiles::serialize() {
+  QJsonObject root;
+  root["filename"] = QString::fromStdString(filename);
+  root["max_tiles"] = maxTiles;
+  root["palette_offset"] = (int)paletteOffset;
+  root["nr_of_colors"] = (int)nColors;
+  root["sprite_width"] = (int)spriteWidth;
+  root["sprite_height"] = (int)spriteHeight;
+  switch (imgMode) {
+    case IMAGEMODE::BITMAP:
+      root["imagemode"] = "bitmap";
+      break;
+    case IMAGEMODE::TILED8:
+      root["imagemode"] = "tiled-8";
+      break;
+    case IMAGEMODE::TILED16:
+      root["imagemode"] = "tiled-16";
+      break;
+    case IMAGEMODE::SPRITE:
+      root["imagemode"] = "sprite";
+      break;
+  }
+  switch (convMode) {
+    case INDEXED:
+      root["conversion"] = "INDEXED";
+      break;
+    case CONVERT_RGB:
+      root["conversion"] = "RGB";
+      break;
+    case CONVERT_HSL:
+      root["conversion"] = "HSL";
+      break;
+    case CONVERT_HSV:
+      root["conversion"] = "HSV";
+      break;
+  }
+  QJsonArray jTiles;
+  for (size_t i = 0; i < tiles.size(); ++i) {
+    jTiles.append(tiles.at(i)->serialize());
+  }
+  root["tiles"] = jTiles;
+  return root;
+}
+
+void Tiles::deserialize(QJsonObject &obj) {
+  paletteOffset = obj["palette_offset"].toInt();
+  maxTiles = obj["max_tiles"].toInt();
+  nColors = obj["nr_of_colors"].toInt();
+  spriteWidth = obj["sprite_width"].toInt();
+  spriteHeight = obj["sprite_height"].toInt();
+  auto jIM = obj["imagemode"].toString().toStdString();
+  if (jIM == "bitmap") imgMode = BITMAP;
+  if (jIM == "tiled-8") imgMode = TILED8;
+  if (jIM == "tiled-16") imgMode = TILED16;
+  if (jIM == "sprite") imgMode = SPRITE;
+  auto jCM = obj["conversion"].toString().toStdString();
+  if (jCM == "INDEXED") convMode = INDEXED;
+  if (jCM == "RGB") convMode = CONVERT_RGB;
+  if (jCM == "HSL") convMode = CONVERT_HSL;
+  if (jCM == "HSV") convMode = CONVERT_HSV;
+
+  this->load(obj["filename"].toString().toStdString());
+
+  auto jTiles = obj["tiles"].toArray();
+  for (int i = 0; i < jTiles.size(); ++i) {
+    if ((size_t)i < tiles.size()) {
+      auto jTile = jTiles.at(i).toObject();
+      tiles.at(i)->deserialize(jTile);
+    }
+  }
+  for (size_t i = 0; i < tiles.size(); ++i) {
+    tiles.at(i)->clear();
+  }
 }
 
 void Tiles::clearTiles() {
