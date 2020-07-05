@@ -35,7 +35,7 @@ Any pixel in the image that has an alpha value of 255 is set to the index select
 
 #### Image Mode:
 
-The VERA Graphic chip has three modes. Bitmap, tiled with a tile dimension of 8 * 8 pixels and tiled with a tile dimension of 16 * 16 pixels. Both tile modes split the image in separate tiles and limit their number to 256, since the VERA chip cannot address more than 256 tiles. It is also possible to limit their number even further.
+The VERA Graphic chip has three modes. Bitmap, tiled with a tile dimension of 8 * 8 pixels and tiled with a tile dimension of 16 * 16 pixels. Both tile modes split the image in separate tiles and limit their number to 1024, since the VERA chip cannot address more than 1024 tiles. It is also possible to limit their number even further. In 2 color mode, only 256 tiles are supported.
 
 To use a tile mode the width and height of your image must be divisible by 8 or 16.
 
@@ -44,14 +44,6 @@ VGC does not enforce these resolutions.
 
 It is also possible to generate sprite maps. In sprite mode the tiles can have 8, 16, 32 or 64 pixels in width or height. They are however limited to 128 tiles, and similarly, the source images dimensions have to be divisible by the tile dimensions. Sprites can only have a color depth of 4 or 8 Bits per Pixel.
 
-#### PRG File Header
-
-It is possible to save the exported binary file with 2 leading bytes. This is necessary for some load routines in the Commander X16 Kernal.
-
-
-#### Splitting files
-
-The exported files can be saved in chunks of a given size. The VERA Video RAM is paged in pages of 2048 bytes. Files can be split at any page, depending on how you want to store or load your data. The PRG File Header is saved to every individual file.
 
 ### The Palette
 
@@ -68,3 +60,17 @@ You can double click on colors in the palette to change them.
 When you hold the left mouse button on a color in the palette, the parts of the image using this color are highlighted.
 
 Similarly, when you click on the image the color in the palette is also highlighted. 
+
+
+### Settings:
+
+You can change some additional behavior under File/Settings...
+
+#### PRG File Header
+
+It is possible to save the exported binary file with 2 leading bytes. This is necessary for some load routines in the Commander X16 Kernal.
+
+
+#### Splitting files
+
+The exported files can be saved in chunks of a given size. The VERA Video RAM is paged in pages of 2048 bytes. Files can be split at any page, depending on how you want to store or load your data. The PRG File Header is saved to every individual file.
