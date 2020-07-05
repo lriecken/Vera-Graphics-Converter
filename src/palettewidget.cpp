@@ -7,7 +7,6 @@ PaletteWidget::PaletteWidget(Palette *palette, QWidget *parent)
 
 void PaletteWidget::paintEvent(QPaintEvent *) {
   size();
-  std::cout << width() << " " << height() << std::endl;
   int newHeight = this->drawPallete();
   setMinimumHeight(newHeight);
 }

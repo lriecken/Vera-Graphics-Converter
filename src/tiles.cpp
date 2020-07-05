@@ -45,7 +45,6 @@ bool Tiles::load(const std::string &filename) {
 }
 
 void Tiles::reset() {
-  std::cout << "Resetting" << std::endl;
   this->original = QImage();
   this->imageLoaded = false;
   this->nColors = 256;
@@ -187,19 +186,12 @@ void Tiles::setNColors(int n) {
 }
 
 void Tiles::setPaletteOffset(int n) {
-  std::cout << "Setting palette offset " << std::endl;
   if (getSelectedTile() != nullptr) {
     this->getSelectedTile()->setPaletteOffset(n);
   }
 
   this->paletteOffset = n;
   emit needUiUpdate();
-  if (convMode != INDEXED) {
-    std::cout << "Conversion mode is not idexed" << std::endl;
-
-  } else {
-    std::cout << "Conversion mode is idexed" << std::endl;
-  }
 }
 
 int Tiles::getPaletteOffset() {

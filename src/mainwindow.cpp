@@ -264,9 +264,10 @@ void MainWindow::updateUI() {
       this->ui->pMode1Check->setEnabled(true);
       this->ui->pMode2Check->setEnabled(true);
       this->ui->NTilesSpin->setEnabled(true);
-      if (this->ui->NTilesSpin->maximum() == 128) {
+      if (project->getTiles()->getNColors() == 2) {
         this->ui->NTilesSpin->setRange(1, 256);
-        this->ui->NTilesSpin->setValue(256);
+      } else {
+        this->ui->NTilesSpin->setRange(1, 1024);
       }
       break;
     case IMAGEMODE::TILED16:
@@ -279,9 +280,10 @@ void MainWindow::updateUI() {
       this->ui->pMode1Check->setEnabled(true);
       this->ui->pMode2Check->setEnabled(true);
       this->ui->NTilesSpin->setEnabled(true);
-      if (this->ui->NTilesSpin->maximum() == 128) {
+      if (project->getTiles()->getNColors() == 2) {
         this->ui->NTilesSpin->setRange(1, 256);
-        this->ui->NTilesSpin->setValue(256);
+      } else {
+        this->ui->NTilesSpin->setRange(1, 1024);
       }
       break;
     case IMAGEMODE::SPRITE:
@@ -294,10 +296,9 @@ void MainWindow::updateUI() {
       this->ui->pMode1Check->setEnabled(false);
       this->ui->pMode2Check->setEnabled(false);
       this->ui->NTilesSpin->setEnabled(true);
-      if (this->ui->NTilesSpin->maximum() == 256) {
-        this->ui->NTilesSpin->setRange(1, 128);
-        this->ui->NTilesSpin->setValue(128);
-      }
+
+      this->ui->NTilesSpin->setRange(1, 128);
+
       break;
   }
   switch (project->getTiles()->getSpriteWidth()) {
