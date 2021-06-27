@@ -41,7 +41,7 @@ class Project : public QObject {
   std::string projectFileName = "";
   bool savePRGAddress = true;
   unsigned int prgAddress = 0;
-  size_t splitPos = 0;
+  size_t splitPos = 129024;
 };
 
 #endif  // PROJECT_H
